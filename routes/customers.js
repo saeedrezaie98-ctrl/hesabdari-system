@@ -1,43 +1,61 @@
 const express = require('express');
 const router = express.Router();
 
-// Sample data array to represent the customer data
+// Fake in-memory database
 let customers = [];
+let nextId = 1;
 
 // GET all customers
 router.get('/', (req, res) => {
     res.json(customers);
 });
 
-// POST a new customer
+// GET single customer
+router.get('/:id', (req, res) => {
+    const customer = customers.find(c => c.id === parseInt(req.params.id));
+    if (!customer) return res.status(404).json({ message: 'Customer not found' });
+    res.json(customer);
+});
+
+// POST create new customer
 router.post('/', (req, res) => {
-    const newCustomer = req.body;
+    const { name, phone, address } = req.body;
+
+    if (!name || !phone)
+        return res.status(400).json({ message: 'Name and phone are required' });
+
+    const newCustomer = {
+        id: nextId++,
+        name,
+        phone,
+        address: address || ''
+    };
+
     customers.push(newCustomer);
     res.status(201).json(newCustomer);
 });
 
-// PUT update an existing customer
+// PUT update customer
 router.put('/:id', (req, res) => {
-    const { id } = req.params;
-    const index = customers.findIndex(customer => customer.id === parseInt(id));
-    if (index !== -1) {
-        customers[index] = { ...customers[index], ...req.body };
-        res.json(customers[index]);
-    } else {
-        res.status(404).send('Customer not found');
-    }
+    const customer = customers.find(c => c.id === parseInt(req.params.id));
+    if (!customer) return res.status(404).json({ message: 'Customer not found' });
+
+    const { name, phone, address } = req.body;
+
+    customer.name = name ?? customer.name;
+    customer.phone = phone ?? customer.phone;
+    customer.address = address ?? customer.address;
+
+    res.json(customer);
 });
 
-// DELETE a customer
+// DELETE customer
 router.delete('/:id', (req, res) => {
-    const { id } = req.params;
-    const index = customers.findIndex(customer => customer.id === parseInt(id));
-    if (index !== -1) {
-        customers.splice(index, 1);
-        res.status(204).send();
-    } else {
-        res.status(404).send('Customer not found');
-    }
+    const index = customers.findIndex(c => c.id === parseInt(req.params.id));
+    if (index === -1) return res.status(404).json({ message: 'Customer not found' });
+
+    customers.splice(index, 1);
+    res.status(204).send();
 });
 
 module.exports = router;

@@ -10,16 +10,27 @@ function convertGregorianToJalali(gregorianDate) {
     const gMonth = gregorianDate.getMonth() + 1;
     const gDay = gregorianDate.getDate();
 
-    const gDaysInMonth = [31, (isLeap(gYear) ? 29 : 28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-    const jDaysInMonth = [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29];
+    const gDaysInMonth = [
+        31, isLeap(gYear) ? 29 : 28, 31, 30, 31, 30,
+        31, 31, 30, 31, 30, 31
+    ];
+
+    const jDaysInMonth = [
+        31, 31, 31, 31, 31, 31,
+        30, 30, 30, 30, 30, 29
+    ];
 
     let gy = gYear - 1600;
     let gm = gMonth - 1;
     let gd = gDay - 1;
 
-    let gDayNo = 365 * gy + Math.floor((gy + 3) / 4) - Math.floor((gy + 99) / 100) + Math.floor((gy + 399) / 400);
+    let gDayNo =
+        365 * gy +
+        Math.floor((gy + 3) / 4) -
+        Math.floor((gy + 99) / 100) +
+        Math.floor((gy + 399) / 400);
 
-    for (let i = 0; i < gm; ++i) gDayNo += gDaysInMonth[i];
+    for (let i = 0; i < gm; i++) gDayNo += gDaysInMonth[i];
     gDayNo += gd;
 
     let jDayNo = gDayNo - 79;
@@ -36,8 +47,9 @@ function convertGregorianToJalali(gregorianDate) {
     }
 
     let jm = 0;
-    for (; jm < 11 && jDayNo >= jDaysInMonth[jm]; ++jm) {
+    while (jm < 11 && jDayNo >= jDaysInMonth[jm]) {
         jDayNo -= jDaysInMonth[jm];
+        jm++;
     }
 
     let jd = jDayNo + 1;
@@ -50,13 +62,4 @@ function isLeap(year) {
 }
 
 /**
- * Formats a number as currency in Tomans.
- * @param {number} amount - The amount in Rials.
- * @returns {string} Formatted currency string in Tomans.
- */
-function formatCurrencyInTomans(amount) {
-    const tomans = Math.floor(amount / 10); // Convert Rial → Toman
-    return `${tomans.toLocaleString('fa-IR')} تومان`;
-}
-
-module.exports = { convertGregorianToJalali, formatCurrencyInTomans };
+ * Formats
